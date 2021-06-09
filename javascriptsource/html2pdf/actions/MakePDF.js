@@ -20,21 +20,38 @@ async function loadDependencies() {
 		});
 	});
 }
+
+// fix stylesheet hrefs
+let fixStylesheets = () => {
+	for (let i = 0; i < document.head.childElementCount; i++) {
+		const element = document.head.children[i];
+		if (element.tagName === "LINK" && element.href) {
+			// this will rewrite the href to include protocol and host
+			element.href = element.href;
+		}
+	}
+	// only run this once
+	fixStylesheets = () => {}
+}
 // END EXTRA CODE
 
 /**
  * @param {string} target - The target class to render as PDF
  * @param {string} filename - The output filename
- * @param {Big} scale - Scale factor for the document in the PDF (larger is bigger). Default: 1.0
- * @param {"MakePDF.ENUM_Orientation.landscape"|"MakePDF.ENUM_Orientation.portrait"} orientation - The orientation of the PDF
+ * @param {"HTML2PDF.ENUM_Orientation.landscape"|"HTML2PDF.ENUM_Orientation.portrait"} orientation - The orientation of the PDF
  * @returns {Promise.<void>}
  */
-export async function MakePDF(target, filename, scale, orientation) {
+export async function MakePDF(target, filename, orientation) {
 	// BEGIN USER CODE
+	fixStylesheets()
+
 	const { jsPDF } = await loadDependencies()
 
 	const element = document.getElementsByClassName(target)[0];
 	if (!element) throw new Error("Could not find target");
+
+	var pdf = new jsPDF({ orientation });
+	const scale = pdf.internal.pageSize.getWidth() / element.clientWidth
 
 	const options = {
 		html2canvas: {
@@ -42,7 +59,6 @@ export async function MakePDF(target, filename, scale, orientation) {
 		}
 	}
 
-	var pdf = new jsPDF({ orientation });
 	await pdf.html(element, options);
 
 	pdf.save(filename);
