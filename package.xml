@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.mendix.com/package/1.0/">
+  <modelerProject xmlns="http://www.mendix.com/modelerProject/1.0/">
+    <module name="HTML2PDF" />
+    <projectFile path="project.mpr" />
+    <files>
+      <file path="javascriptsource\html2pdf\actions\MakePDF.js" />
+      <file path="themesource\html2pdf\native\main.js" />
+      <file path="themesource\html2pdf\native\design-properties.json" />
+      <file path="themesource\html2pdf\web\main.scss" />
+      <file path="themesource\html2pdf\web\design-properties.json" />
+    </files>
+  </modelerProject>
+</package>
