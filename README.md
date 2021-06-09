@@ -10,7 +10,6 @@ This module provides a JS Action that converts an HTML Container into a download
    
    Target: The class of the container that should be converted into a PDF (must be unique!)
    Filename: The filename used for the downlaoded PDF
-   Scale: scale factor for the PDF (larger is bigger)
    Orientation: Landscape or Portrait
 
 ## Notes
