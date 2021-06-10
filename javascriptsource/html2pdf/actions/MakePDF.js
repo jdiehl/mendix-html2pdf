@@ -45,10 +45,6 @@ let fixStylesheets = async () => {
  */
 export async function MakePDF(target, filename, orientation, format) {
 	// BEGIN USER CODE
-	window.target = target
-	window.filename = filename
-	window.orientation = orientation
-	window.format = format
 	await fixStylesheets()
 
 	const { jsPDF } = await loadDependencies()
@@ -56,24 +52,22 @@ export async function MakePDF(target, filename, orientation, format) {
 	const element = document.getElementsByClassName(target)[0];
 	if (!element) throw new Error("Could not find target");
 
-	var pdf = new jsPDF({ orientation });
-
 	if (!format || format === 'pdf') {
 		// render a pure pdf
+		var pdf = new jsPDF({ orientation });
 		const scale = pdf.internal.pageSize.getWidth() / element.clientWidth
 		const options = { html2canvas: { scale } }
 		await pdf.html(element, options);
+		pdf.save(filename);
 
 	} else {
-		// render a screenshot and turn it into a pdf
-		const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL(`image/${format}`);
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(imgData, format.toUpperCase(), 0, 0, pdfWidth, pdfHeight);
+		// render an image
+		const canvas = await window.html2canvas(element);
+		const a = document.createElement('a');
+		a.href = canvas.toDataURL(`image/${format}`).replace(`image/${format}`, "image/octet-stream");
+		a.download = filename;
+		a.click();
 	}
 
-	pdf.save(filename);
 	// END USER CODE
 }

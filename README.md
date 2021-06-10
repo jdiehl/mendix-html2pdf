@@ -11,7 +11,7 @@ This module provides a JS Action that converts an HTML Container into a download
    Target: The class of the container that should be converted into a PDF (must be unique!)
    Filename: The filename used for the downlaoded PDF
    Orientation: Landscape or Portrait
-   Format: PDF (to create a pure pdf) or PNG/JPEG (to create a screenshot and store it as a PDF)
+   Format: PDF (to create a pure pdf) or PNG/JPEG (to create an image)
 
 ## Notes
 
