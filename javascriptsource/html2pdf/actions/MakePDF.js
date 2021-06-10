@@ -22,7 +22,7 @@ async function loadDependencies() {
 }
 
 // fix stylesheet hrefs
-let fixStylesheets = () => {
+let fixStylesheets = async () => {
 	for (let i = 0; i < document.head.childElementCount; i++) {
 		const element = document.head.children[i];
 		if (element.tagName === "LINK" && element.href) {
@@ -32,6 +32,7 @@ let fixStylesheets = () => {
 	}
 	// only run this once
 	fixStylesheets = () => {}
+	return new Promise(resolve => setTimeout(resolve, 1000))
 }
 // END EXTRA CODE
 
@@ -39,11 +40,16 @@ let fixStylesheets = () => {
  * @param {string} target - The target class to render as PDF
  * @param {string} filename - The output filename
  * @param {"HTML2PDF.ENUM_Orientation.landscape"|"HTML2PDF.ENUM_Orientation.portrait"} orientation - The orientation of the PDF
+ * @param {"HTML2PDF.ENUM_Format.pdf"|"HTML2PDF.ENUM_Format.png"|"HTML2PDF.ENUM_Format.jpeg"} format - Render the PDF as a pure PDF or as an image.
  * @returns {Promise.<void>}
  */
-export async function MakePDF(target, filename, orientation) {
+export async function MakePDF(target, filename, orientation, format) {
 	// BEGIN USER CODE
-	fixStylesheets()
+	window.target = target
+	window.filename = filename
+	window.orientation = orientation
+	window.format = format
+	await fixStylesheets()
 
 	const { jsPDF } = await loadDependencies()
 
@@ -51,15 +57,22 @@ export async function MakePDF(target, filename, orientation) {
 	if (!element) throw new Error("Could not find target");
 
 	var pdf = new jsPDF({ orientation });
-	const scale = pdf.internal.pageSize.getWidth() / element.clientWidth
 
-	const options = {
-		html2canvas: {
-			scale
-		}
+	if (!format || format === 'pdf') {
+		// render a pure pdf
+		const scale = pdf.internal.pageSize.getWidth() / element.clientWidth
+		const options = { html2canvas: { scale } }
+		await pdf.html(element, options);
+
+	} else {
+		// render a screenshot and turn it into a pdf
+		const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL(`image/${format}`);
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, format.toUpperCase(), 0, 0, pdfWidth, pdfHeight);
 	}
-
-	await pdf.html(element, options);
 
 	pdf.save(filename);
 	// END USER CODE
